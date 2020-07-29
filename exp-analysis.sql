@@ -31,7 +31,7 @@ SELECT DISTINCT dt FROM central_insights_sandbox.vb_rec_exp_ids_hid;
 
 -- What is the split across different frequency bands -- a high number in the less frequent bands is bad for personalisation as we can't personalise them well
 SELECT frequency_band, frequency_group_aggregated, count(DISTINCT dt||visit_id) as num_visits, count(distinct bbc_hid3) as num_signed_in_users
-FROM central_insights_sandbox.vb_rec_exp_final
+FROM central_insights_sandbox.vb_rec_exp_ids_hid_final
 GROUP BY 1,2
 ORDER BY 1,2;
 
