@@ -16,7 +16,7 @@ Step 9: Data for R Statistical Analysis
 
 
 */
-
+SELECT distinct user_experience FROM s3_audience.publisher WHERE user_experience ILIKE '%iplxp_ibl35_sort_featured_binge%' AND dt = 20200801;
 -- Step 0: Initially set a date range table for ease of changing later and VMB to guard against pipeline issues
 --Date table
 DROP TABLE IF EXISTS central_insights_sandbox.vb_homepage_rec_date_range;
@@ -24,10 +24,7 @@ create table central_insights_sandbox.vb_homepage_rec_date_range (
     min_date varchar(20),
     max_date varchar(20));
 insert into central_insights_sandbox.vb_homepage_rec_date_range
-values ('20200706','20200720'); --V3 irex (v2 re-run)
---values ('20200618','20200628'); --V2 irex
---values('20200406','20200518'); -- V1 irex
--- 2020-04-06 to 2020-05-18
+values ('20200721','20200806');
 
 SELECT * FROM central_insights_sandbox.vb_homepage_rec_date_range;
 GRANT SELECT ON central_insights_sandbox.vb_homepage_rec_date_range TO GROUP dataforce_analysts;
@@ -37,16 +34,14 @@ DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_variants;
 CREATE TABLE central_insights_sandbox.vb_exp_variants (
     exp_name varchar(200),
     control varchar(200),
-    var_1 varchar(200),
-    var_2 varchar(200)
+    var_1 varchar(200)
 );
 
 INSERT INTO central_insights_sandbox.vb_exp_variants
 values(
-       '%iplxp_irex_model1_2_repeat%', -- experiment name with % at either end
-       'EXP=iplxp_irex_model1_2_repeat::control', -- control
-       'EXP=iplxp_irex_model1_2_repeat::variation_1', -- variant 1
-       'EXP=iplxp_irex_model1_2_repeat::variation_2' -- variant 2
+       '%iplxp_ibl35_sort_featured_binge%', -- experiment name with % at either end
+       'EXP=iplxp_ibl35_sort_featured_binge::control', -- control
+       'EXP=iplxp_ibl35_sort_featured_binge::variant' -- variant 1
       );
 
 SELECT * FROM central_insights_sandbox.vb_exp_variants;
@@ -86,7 +81,6 @@ SELECT DISTINCT a.destination,
                     END AS platform,
                 CASE
                     WHEN user_experience = (SELECT var_1 FROM central_insights_sandbox.vb_exp_variants) THEN 'variation_1'
-                    WHEN user_experience = (SELECT var_2 FROM central_insights_sandbox.vb_exp_variants) THEN 'variation_2'
                     WHEN user_experience = (SELECT control FROM central_insights_sandbox.vb_exp_variants) THEN 'control'
                     ELSE 'unknown'
                     END AS exp_group,
@@ -105,9 +99,9 @@ WHERE a.dt between (SELECT min_date FROM central_insights_sandbox.vb_homepage_re
   AND a.user_experience ilike (SELECT exp_name FROM central_insights_sandbox.vb_exp_variants)
   AND a.destination = 'PS_IPLAYER'
   AND (b.app_type ILIKE '%bigscreen-html%' OR b.app_type ILIKE '%responsive%')
-LIMIT 10;
 ;
 
+SELECT * FROM central_insights_sandbox.vb_rec_exp_ids_temp LIMIT 10;
 
 --SELECT platform, exp_group, count(visit_id) FROM central_insights_sandbox.vb_rec_exp_ids_temp GROUP BY 1,2 ORDER BY 2,1;
 
@@ -719,16 +713,16 @@ FROM central_insights_sandbox.vb_exp_valid_watched a
 -- There will be visits where nothing happened so this table will have fewer hids than the hid table.
 
 -- Create final table called the exp name so we can refer back to it in the future.
-DROP TABLE IF EXISTS central_insights_sandbox.vb_rec_exp_final_iplxp_irex_model1_2_repeat;
-CREATE TABLE central_insights_sandbox.vb_rec_exp_final_iplxp_irex_model1_2_repeat AS
+DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_sort_featured_binge;
+CREATE TABLE central_insights_sandbox.vb_exp_sort_featured_binge AS
     SELECT * FROM central_insights_sandbox.vb_exp_valid_watched_enriched;
 
-DROP TABLE IF EXISTS central_insights_sandbox.vb_module_impressions_iplxp_irex_model1_2_repeat;
-CREATE TABLE central_insights_sandbox.vb_module_impressions_iplxp_irex_model1_2_repeat AS
+DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_sort_featured_binge_module_impressions;
+CREATE TABLE central_insights_sandbox.vb_exp_sort_featured_binge_module_impressions AS
 SELECT * FROM central_insights_sandbox.vb_module_impressions;
 
-DROP TABLE IF EXISTS central_insights_sandbox.vb_rec_exp_ids_hid_iplxp_irex_model1_2_repeat;
-CREATE TABLE central_insights_sandbox.vb_rec_exp_ids_hid_iplxp_irex_model1_2_repeat AS
+DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_sort_featured_binge_hids;
+CREATE TABLE central_insights_sandbox.vb_exp_sort_featured_binge_hids AS
 SELECT * FROM central_insights_sandbox.vb_rec_exp_ids_hid;
 
 
