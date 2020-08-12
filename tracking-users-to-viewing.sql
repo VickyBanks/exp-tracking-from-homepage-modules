@@ -24,7 +24,7 @@ create table central_insights_sandbox.vb_homepage_rec_date_range (
     min_date varchar(20),
     max_date varchar(20));
 insert into central_insights_sandbox.vb_homepage_rec_date_range
-values ('20200721','20200806');
+values ('20200721','20200811');
 
 SELECT * FROM central_insights_sandbox.vb_homepage_rec_date_range;
 GRANT SELECT ON central_insights_sandbox.vb_homepage_rec_date_range TO GROUP dataforce_analysts;
