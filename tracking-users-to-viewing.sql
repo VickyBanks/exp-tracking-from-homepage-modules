@@ -145,6 +145,7 @@ ORDER BY a.dt, c.bbc_hid3, visit_id
 
 
 
+
 -- Some visits end up sending two or three experiment flags. When the signed in user is switched.
 -- For 2020-04-06 to 2020-04-27 the number of bbc3_hids/visit combinations with more than one ID was 0.8%.
 -- These need to be removed.
@@ -471,6 +472,7 @@ SELECT *, row_number() over (PARTITION BY dt,unique_visitor_cookie_id,bbc_hid3, 
 FROM central_insights_sandbox.vb_exp_clicks_and_starts_temp
 ORDER BY dt, unique_visitor_cookie_id, bbc_hid3, visit_id, event_position;
 
+
 -- Join the table back on itself to match the content click to the ixpl start by the content_id.
 -- For categories and channels the click ID is often unknown so need to create one master table so the click event before ixpl start can be taken in these cases
 -- If that's ever fixed then can simply join play starts with clicks
@@ -522,6 +524,8 @@ ORDER BY a.visit_id, a.event_position
 ;
 
 
+
+
 -- Prevent the join over counting
 -- Prevent one click being joined to multiple starts
 DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_clicks_linked_starts_valid_temp;
@@ -560,6 +564,7 @@ DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_clicks_linked_starts_valid;
 CREATE TABLE central_insights_sandbox.vb_exp_clicks_linked_starts_valid
 AS SELECT * FROM central_insights_sandbox.vb_exp_clicks_linked_starts_valid_temp;
 
+
 -- Define value if there's no start
 UPDATE central_insights_sandbox.vb_exp_clicks_linked_starts_valid
 SET content_attribute = (CASE
@@ -587,6 +592,7 @@ SELECT dt,
 FROM central_insights_sandbox.vb_exp_clicks_linked_starts_valid;
 
 
+
 --------------------------------------  Step 5: Get all watched flags and join to start flags -------------------------------------------------
 
 -- For every dt/user/visit combination find all the ixpl watched labels
@@ -609,6 +615,7 @@ WHERE a.publisher_impressions = 1
   AND a.destination = 'PS_IPLAYER'
   AND a.dt BETWEEN (SELECT min_date FROM central_insights_sandbox.vb_homepage_rec_date_range) AND (SELECT max_date FROM central_insights_sandbox.vb_homepage_rec_date_range)
 ORDER BY a.dt, b.bbc_hid3, a.visit_id, a.event_position;
+
 
 
 -- Join the watch events to the validated start events, ensuring the same content_id
@@ -649,6 +656,8 @@ WHERE duplicate_count2 != 1;
 DELETE FROM central_insights_sandbox.vb_exp_starts_and_watched
 WHERE duplicate_count != 1;
 
+
+
 --------------------------------------  Step 6: Simplify table and enrich with user data -------------------------------------------------
 DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_valid_watched;
 CREATE TABLE central_insights_sandbox.vb_exp_valid_watched AS
@@ -657,6 +666,7 @@ SELECT dt,
        bbc_hid3,
        visit_id,
        click_think_group,
+       click_id,
        click_event_position,
        click_container,
        click_placement,
@@ -679,6 +689,7 @@ SET watched_flag = (CASE
                         WHEN watched_flag IS NULL THEN 'no-watched-flag'
                         ELSE watched_flag END);
 
+
 -- enrich with the data about users e.g age
 DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_valid_watched_enriched;
 CREATE TABLE central_insights_sandbox.vb_exp_valid_watched_enriched AS
@@ -689,6 +700,7 @@ SELECT a.dt,
        b.frequency_group_aggregated,
        a.visit_id,
        a.click_think_group,
+       a.click_id,
        a.click_event_position,
        a.click_container,
        a.click_placement,
@@ -756,6 +768,9 @@ DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_valid_watched_temp;
 DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_valid_watched_temp2;
 DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_valid_watched;
 DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_valid_watched_enriched;
+DROP TABLE IF EXISTS central_insights_sandbox.vb_rec_exp_ids_hid;
+DROP TABLE IF EXISTS central_insights_sandbox.vb_exp_valid_watched_enriched;
+DROP TABLE IF EXISTS central_insights_sandbox.vb_module_impressions;
 -------- End of delete
 
 
