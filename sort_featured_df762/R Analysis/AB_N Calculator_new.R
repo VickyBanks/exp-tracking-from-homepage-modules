@@ -49,6 +49,7 @@ remove_outliers <- function (df) {
    print(paste0("mean = ", mean(y)))
    print(paste0("3sd = ",3*sd(y)))
    print(paste0("3sd + mean = ", 3*sd(y) + mean(y)))
+   
    dfNoOutliers<- df%>% filter(df[2]< 3*sd(y) + mean(y)) #remove any outlisers
    valsremaining <- length(dfNoOutliers)/length(df)
    valsremaining
@@ -78,7 +79,7 @@ ggbetween_plot_starts <- ExpStarts %>%
    x = Variant,
    y = num_starts, ### CHANGE THIS TO THE METRIC OF INTEREST! ###
    mean.label.size = 2.5,
-   type = "parametric",
+   type = "parametric",       
    k = 3,
    pairwise.comparisons = TRUE,
    pairwise.annotation = "p.value",
@@ -117,7 +118,7 @@ ggbetween_plot_watched
 
 ### This section of the script calculators individual uplifts between variants ###
 uplift_calculator <- function(Control_Metric, Variant_Metric){
-   uplift <- (Variant_Metric/Control_Metric)-1
+   uplift <- (Variant_Metric/Control_Metric)-1 
    uplift <- percent(uplift)
    if (uplift > 0){
       sprintf("The variant beat the control by %s", uplift, Control_Metric, Variant_Metric)

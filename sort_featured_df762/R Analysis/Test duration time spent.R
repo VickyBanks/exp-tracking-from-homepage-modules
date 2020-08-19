@@ -51,7 +51,7 @@ data <- read_csv("test_duration_data.csv")
 #data <-read.table("nhpsplit.tsv", sep="\t", comment.char = "", stringsAsFactors = FALSE) 
 
 # The change you should be able to see
-minimumDetectableChange <- 0.01
+minimumDetectableChange <- 0.20
 
 for(col in 2:ncol(data)) {
   print(paste0("col = ",col))
