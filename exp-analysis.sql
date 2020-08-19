@@ -8,7 +8,11 @@ SELECT * FROM central_insights_sandbox.vb_exp_sort_featured_binge_module_impress
 --- Starts/Watches and clicks
 DROP TABLE IF EXISTS central_insights_sandbox.vb_rec_exp_final;
 CREATE TABLE central_insights_sandbox.vb_rec_exp_final AS
-SELECT * FROM central_insights_sandbox.vb_exp_sort_featured_binge ; -- this will need to be the name of the current experiment
+SELECT * FROM central_insights_sandbox.vb_exp_sort_featured_binge; -- this will need to be the name of the current experiment
+
+
+SELECT * FROM central_insights_sandbox.vb_rec_exp_final
+    WHERE dt = 20200729 AND visit_id = 11836111;
 
 -- Impressions
 DROP TABLE IF EXISTS central_insights_sandbox.vb_rec_impr_final;
@@ -25,9 +29,14 @@ GRANT SELECT ON central_insights_sandbox.vb_rec_exp_final  TO GROUP dataforce_an
 GRANT SELECT ON central_insights_sandbox.vb_rec_impr_final TO GROUP dataforce_analysts;
 GRANT SELECT ON central_insights_sandbox.vb_rec_exp_ids_hid_final TO GROUP dataforce_analysts;
 
------------------- Initial Checking ------------------
+GRANT SELECT ON central_insights_sandbox.vb_rec_exp_final  TO frank_hopkins;
+GRANT SELECT ON central_insights_sandbox.vb_rec_impr_final TO frank_hopkins;
+GRANT SELECT ON central_insights_sandbox.vb_rec_exp_ids_hid_final TO frank_hopkins;
 
-SELECT DISTINCT dt FROM central_insights_sandbox.vb_rec_exp_ids_hid;
+------------------ Initial Checking ------------------
+SELECt * FROM central_insights_sandbox.vb_rec_exp_final LIMIT 5;
+
+SELECT DISTINCT dt FROM central_insights_sandbox.vb_rec_exp_ids_hid_final;
 SELECT age_range, count(distinct bbc_hid3) FROM central_insights_sandbox.vb_rec_exp_ids_hid_final GROUP BY 1;
 
 -- What is the split across different frequency bands -- a high number in the less frequent bands is bad for personalisation as we can't personalise them well
@@ -67,7 +76,7 @@ with user_stats AS (
              count(visit_id)   AS num_clicks_to_module
          FROM central_insights_sandbox.vb_rec_exp_final
          WHERE click_placement = 'iplayer.tv.page' --homepage
-           --AND click_container = 'module-editorial-featured'
+          -- AND click_container = 'module-editorial-featured'
          --AND click_container ILIKE '%binge%'
          AND click_container = 'module-recommendations-recommended-for-you'
          --AND click_container = 'module-watching-continue-watching'
