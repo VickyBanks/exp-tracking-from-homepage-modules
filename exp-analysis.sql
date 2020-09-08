@@ -29,9 +29,6 @@ GRANT SELECT ON central_insights_sandbox.vb_rec_exp_final  TO GROUP dataforce_an
 GRANT SELECT ON central_insights_sandbox.vb_rec_impr_final TO GROUP dataforce_analysts;
 GRANT SELECT ON central_insights_sandbox.vb_rec_exp_ids_hid_final TO GROUP dataforce_analysts;
 
-GRANT SELECT ON central_insights_sandbox.vb_rec_exp_final  TO frank_hopkins;
-GRANT SELECT ON central_insights_sandbox.vb_rec_impr_final TO frank_hopkins;
-GRANT SELECT ON central_insights_sandbox.vb_rec_exp_ids_hid_final TO frank_hopkins;
 
 ------------------ Initial Checking ------------------
 SELECt * FROM central_insights_sandbox.vb_rec_exp_final LIMIT 5;
