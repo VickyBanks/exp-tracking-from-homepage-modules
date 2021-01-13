@@ -14,9 +14,8 @@ Step 7: END - delete table
 Step 8: Look at results
 Step 9: Data for R Statistical Analysis
 
-
 */
-SELECT distinct user_experience FROM s3_audience.publisher WHERE user_experience ILIKE '%iplxp_ibl35_sort_featured_binge%' AND dt = 20200801;
+SELECT distinct user_experience FROM s3_audience.publisher WHERE user_experience ILIKE '%iplxp_ibl35_sort_featured_binge%' AND dt = 20200804;
 -- Step 0: Initially set a date range table for ease of changing later and VMB to guard against pipeline issues
 --Date table
 DROP TABLE IF EXISTS central_insights_sandbox.vb_homepage_rec_date_range;
@@ -24,7 +23,7 @@ create table central_insights_sandbox.vb_homepage_rec_date_range (
     min_date varchar(20),
     max_date varchar(20));
 insert into central_insights_sandbox.vb_homepage_rec_date_range
-values ('20200721','20200811');
+values ('20200721','20200806');
 
 SELECT * FROM central_insights_sandbox.vb_homepage_rec_date_range;
 GRANT SELECT ON central_insights_sandbox.vb_homepage_rec_date_range TO GROUP dataforce_analysts;
@@ -119,11 +118,11 @@ SELECT DISTINCT a.*,
                 CASE WHEN d.frequency_band ISNULL THEN 'new' ELSE d.frequency_band END   AS frequency_band,
                 central_insights_sandbox.udf_dataforce_frequency_groups(d.frequency_band) AS frequency_group_aggregated,
                 CASE
-                    WHEN c.age >= 35 THEN '35+'
-                    WHEN c.age <= 10 THEN 'under 10'
-                    WHEN c.age >= 11 AND c.age <= 15 THEN '11-15'
-                    WHEN c.age >= 16 AND c.age <= 24 THEN '16-24'
-                    WHEN c.age >= 25 AND c.age <= 34 then '25-34'
+                    WHEN c.age::int >= 35 THEN '35+'
+                    WHEN c.age::int <= 10 THEN 'under 10'
+                    WHEN c.age::int >= 11 AND c.age::int <= 15 THEN '11-15'
+                    WHEN c.age::int >= 16 AND c.age::int <= 24 THEN '16-24'
+                    WHEN c.age::int >= 25 AND c.age::int <= 34 then '25-34'
                     ELSE 'unknown'
                     END                                                                   AS age_range
 FROM central_insights_sandbox.vb_rec_exp_ids a -- all the IDs from publisher
