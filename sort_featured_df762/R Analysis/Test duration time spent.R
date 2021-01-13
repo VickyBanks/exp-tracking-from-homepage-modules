@@ -63,7 +63,7 @@ for(col in 2:ncol(data)) {
   #numberOfUsers <- coefficient * 2 * numberOfVariants * (standardDeviation^2/(minimumDetectableChange^2))
   #OR IF YOU WANT minimum detectable change to be a percentage (I THINK! Please check)
   numberOfUsers <-
-    coefficient * 2 * numberOfVariants * (standardDeviation ^ 2 / ((minimumDetectableChange *mean(metric)) ^ 2))
+    coefficient * 2 * numberOfVariants * (standardDeviation ^ 2 / ((minimumDetectableChange * mean(metric)) ^ 2))
   print(paste0("number of users  = ", numberOfUsers))
   
   timeInWeeks <- numberOfUsers / weeklyUsers
