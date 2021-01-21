@@ -135,12 +135,13 @@ FROM central_insights_sandbox.vb_rec_exp_ids a -- all the IDs from publisher
              ) b -- get the audience_id
               ON a.unique_visitor_cookie_id = b.unique_visitor_cookie_id AND a.visit_id = b.visit_id AND a.dt = b.dt AND
                  a.destination = b.destination
-         JOIN prez.id_profile c ON b.audience_id = c.bbc_hid3 -- gives hid and age
-         JOIN iplayer_sandbox.iplayer_weekly_frequency_calculations d -- give frequency groups
+         LEFT JOIN prez.id_profile c ON b.audience_id = c.bbc_hid3 -- gives hid and age
+         LEFT JOIN iplayer_sandbox.iplayer_weekly_frequency_calculations d -- give frequency groups
               ON (c.bbc_hid3 = d.bbc_hid3 and
                   trunc(date_trunc('week', cast(a.dt as date))) = d.date_of_segmentation)
 ORDER BY a.dt, c.bbc_hid3, visit_id
 ;
+
 
 
 
@@ -281,8 +282,13 @@ FROM s3_audience.publisher a
          JOIN central_insights_sandbox.vb_rec_exp_ids_hid b -- this is to bring in only those visits in our journey table
               ON a.dt = b.dt AND a.unique_visitor_cookie_id = b.unique_visitor_cookie_id AND
                  b.visit_id = a.visit_id
-WHERE (a.attribute LIKE '%squeeze-auto-play%' OR a.attribute LIKE '%squeeze-play%' OR a.attribute LIKE '%end-play%' OR
-       a.attribute LIKE '%end-auto-play%' OR a.attribute LIKE '%select-play%')
+WHERE (a.attribute LIKE '%squeeze-auto-play%'
+    OR a.attribute LIKE '%squeeze-play%'
+    OR a.attribute LIKE '%end-play%'
+    OR a.attribute LIKE '%end-auto-play%'
+    OR a.attribute LIKE 'auto-play'
+    OR a.attribute LIKE 'select-play'
+    )
   AND a.publisher_clicks = 1
   AND a.destination = b.destination
   AND a.dt BETWEEN (SELECT min_date FROM central_insights_sandbox.vb_homepage_rec_date_range) AND (SELECT max_date FROM central_insights_sandbox.vb_homepage_rec_date_range)
@@ -331,7 +337,7 @@ SELECT DISTINCT a.dt,
                 a.url,
                 CASE
                     WHEN a.url ILIKE '%/playback%' THEN SUBSTRING(
-                            REVERSE(regexp_substr(REVERSE(a.url), '[[:alnum:]]{6}[0-9]{1}[pbwnmlc]{1}/')), 2,
+                            REVERSE(regexp_substr(REVERSE(a.url), '[[:alnum:]]{8}/')), 2,
                             8) -- Need the final instance of the phrase'/playback' to get the episode ID so reverse url so that it's now first.
                     ELSE 'unknown' END                                                                   AS click_result,
                 row_number()
